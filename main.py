@@ -38,3 +38,4 @@ response = requests.get(url)
 response.raise_for_status()
 vacancies = response.json()
 pprint(vacancies['items'][0]['salary'])
+
