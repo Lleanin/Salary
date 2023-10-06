@@ -1,13 +1,6 @@
 import requests
 from pprint import pprint
 
-count = 0
-vacancies_for_page = 100
-
-languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
-             "C"]
-vacancies_count = {}
-
 
 def stats_of_vacancies(page, language):
     payload = {
@@ -20,7 +13,7 @@ def stats_of_vacancies(page, language):
     response = requests.get(url, params=payload)
     response.raise_for_status()
     vacancies = response.json()
-    return vacancies
+    return vacancies['items']
 
 
 def get_hh_statistics():
@@ -33,9 +26,37 @@ def get_hh_statistics():
     return vacancies_count
 
 
-url = 'https://api.hh.ru/vacancies/'
-response = requests.get(url)
-response.raise_for_status()
-vacancies = response.json()
-pprint(vacancies['items'][0]['salary'])
+def predict_rub_salary(salary_from, salary_to):
+    if salary_from and salary_to:
+        return (salary_from+salary_to)/2
+    elif salary_from:
+        return salary_from*1.2
+    else:
+        return salary_to*0.8
 
+
+def get_salary(vacancies):
+    avg_salaries = []
+    for vacancy in vacancies:
+        salary = vacancy['salary']
+        if not salary:
+            avg_salaries.append(None)
+        elif salary['currency'] != 'RUR':
+            avg_salaries.append(None)
+        else:
+            avg_salaries.append(predict_rub_salary(salary['from'], salary['to']))
+    return avg_salaries
+
+
+if __name__ == '__main__':
+    count = 0
+    vacancies_for_page = 100
+
+    languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
+                 "C"]
+    vacancies_count = {}
+
+    vacancies = stats_of_vacancies(0, 'Python')
+    vacancies_programming = {}
+
+    salaries = get_salary(vacancies)
