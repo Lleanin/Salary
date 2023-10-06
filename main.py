@@ -2,7 +2,7 @@ import requests
 from pprint import pprint
 
 
-def stats_of_vacancies(page, language):
+def stats_of_vacancies(page, language, vacancies_for_page):
     payload = {
         'area': 1,
         'text': "Программист {}".format(language),
@@ -13,16 +13,27 @@ def stats_of_vacancies(page, language):
     response = requests.get(url, params=payload)
     response.raise_for_status()
     vacancies = response.json()
-    return vacancies['items']
+    return vacancies
 
 
 def get_hh_statistics():
+    vacancies_processed = 0
+    vacancies_for_page = 100
+    salaries = []
+    vacancies_count = {}
+    #vacancies_programming = {}
+    languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
+                 "C"]
     for language in languages:
         for page in range(20):
-            response = stats_of_vacancies()
-            if page >= response["pages"] - 1:
+            vacancies = stats_of_vacancies(page, language, vacancies_for_page)
+            if page >= vacancies["pages"] - 1:
                 break
-        vacancies_count[language] = response["found"]
+            salaries.append(get_salary(vacancies['items']))
+            if get_salary(vacancies['items']) is not None:
+                vacancies_processed += 1
+        vacancies_count[language] = vacancies["found"]
+    print(vacancies_processed)
     return vacancies_count
 
 
@@ -36,27 +47,21 @@ def predict_rub_salary(salary_from, salary_to):
 
 
 def get_salary(vacancies):
-    avg_salaries = []
+    language_salaries = []
     for vacancy in vacancies:
         salary = vacancy['salary']
         if not salary:
-            avg_salaries.append(None)
+            language_salaries.append(None)
         elif salary['currency'] != 'RUR':
-            avg_salaries.append(None)
+            language_salaries.append(None)
         else:
-            avg_salaries.append(predict_rub_salary(salary['from'], salary['to']))
-    return avg_salaries
+            language_salaries.append(predict_rub_salary(salary['from'], salary['to']))
+    return language_salaries
+
+
+def main():
+    pprint(get_hh_statistics())
 
 
 if __name__ == '__main__':
-    count = 0
-    vacancies_for_page = 100
-
-    languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
-                 "C"]
-    vacancies_count = {}
-
-    vacancies = stats_of_vacancies(0, 'Python')
-    vacancies_programming = {}
-
-    salaries = get_salary(vacancies)
+    main()
