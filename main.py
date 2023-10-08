@@ -20,7 +20,7 @@ def get_hh_statistics():
     vacancies_for_page = 100
     salaries = []
     vacancies_count = {}
-    # vacancies_programming = {}
+    vacancies_programming = {}
     languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
                  "C"]
     for language in languages:
@@ -30,10 +30,12 @@ def get_hh_statistics():
             if page >= vacancies["pages"] - 1:
                 break
             salaries.append(get_salary(vacancies['items']))
-            if get_salary(vacancies['items']) is not None:
+            if salaries:
                 vacancies_processed += 1
-        vacancies_count[language] = vacancies["found"]
-        print(vacancies_processed)
+            vacancies_count[language] = vacancies_programming
+            vacancies_programming["vacancies_found"] = vacancies["found"]
+            vacancies_programming["vacancies_processed"] = vacancies_processed
+        print(vacancies_count)
     return vacancies_count
 
 
