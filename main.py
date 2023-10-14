@@ -1,5 +1,5 @@
 import requests
-from pprint import pprint
+import pprint
 
 
 def stats_of_vacancies(page, language, vacancies_for_page):
@@ -19,24 +19,29 @@ def stats_of_vacancies(page, language, vacancies_for_page):
 def get_hh_statistics():
     vacancies_for_page = 100
     salaries = []
-    vacancies_count = {}
-    vacancies_programming = {}
+    language_vacancies = {}
     languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
                  "C"]
     for language in languages:
         vacancies_processed = 0
-        for page in range(20):
+        salaries_sum = 0
+        for page in range(19):
             vacancies = stats_of_vacancies(page, language, vacancies_for_page)
             if page >= vacancies["pages"] - 1:
                 break
             salaries.append(get_salary(vacancies['items']))
-            if salaries:
-                vacancies_processed += 1
-            vacancies_count[language] = vacancies_programming
-            vacancies_programming["vacancies_found"] = vacancies["found"]
-            vacancies_programming["vacancies_processed"] = vacancies_processed
-        print(vacancies_count)
-    return vacancies_count
+            for salary_list in salaries:
+                if salary_list is not None:
+                    vacancies_processed += 1
+                for salary in salary_list:
+                    if salary:
+                        salaries_sum += salary
+        avg_salary = salaries_sum//vacancies_processed
+        language_vacancies[language] = {"vacancies_found": vacancies["found"],
+                                        "vacancies_processed": vacancies_processed,
+                                        "average_salary": avg_salary,
+                                        }
+    return language_vacanciesы
 
 
 def predict_rub_salary(salary_from, salary_to):
@@ -62,8 +67,21 @@ def get_salary(vacancies):
 
 
 def main():
-    pprint(get_hh_statistics())
+    pprint.pp(get_hh_statistics())
 
 
 if __name__ == '__main__':
     main()
+
+headers = {
+    'X-Api-App-Id': "v3.r.137888823.3493536d8f3aec3215deaaf17ed4ec077f87bbc8.85e33e64bb8f1feb2b7563192bae7a64dd0822de"
+    }
+url = 'https://api.superjob.ru/2.0/vacancies/'
+response = requests.get(url, headers=headers)
+response.raise_for_status()
+vacancies = response.json()
+for vacancy in vacancies:
+    print(vacancy['objects'])
+    # profession = vacancy["objects"]
+    # pprint.pp(profession)
+# pprint.pp(vacancies['profession'])
