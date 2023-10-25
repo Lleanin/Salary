@@ -127,11 +127,12 @@ def get_sj_statistics(languages):
     return language_vacancies_sj
 
 
-def create_table(vacancies_statistics):
+def create_table(vacancy_statistic):
+
     vacancies_table = [
         ["Язык программирования", "Вакансий найдено", "Вакансий обработано", "Средняя зарплата"]
     ]
-    for language, language_statistics in vacancies_statistics.items():
+    for language, language_statistics in vacancy_statistic.items():
         vacancies_found = language_statistics["vacancies_found"]
         vacancies_processed = language_statistics["vacancies_processed"]
         average_salary = language_statistics['average_salary']
@@ -143,8 +144,9 @@ def create_table(vacancies_statistics):
 def main():
     languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
                  "C"]
-    sj_statistics = get_sj_statistics(languages)
-    print(create_table(vacancies_statistics))
+    vacancies_statistics = get_sj_statistics(languages), get_hh_statistics(languages)
+    for vacancy_statistic in vacancies_statistics:
+        print(create_table(vacancy_statistic))
 
 
 if __name__ == '__main__':
