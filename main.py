@@ -1,5 +1,6 @@
 import requests
 import pprint
+from terminaltables import AsciiTable
 
 
 def stats_of_vacancies_hh(page, language, vacancies_for_page):
@@ -16,12 +17,10 @@ def stats_of_vacancies_hh(page, language, vacancies_for_page):
     return vacancies_hh
 
 
-def get_hh_statistics():
+def get_hh_statistics(languages):
     vacancies_for_page = 100
     salaries = []
     language_vacancies_hh = {}
-    languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
-                 "C"]
     for language in languages:
         vacancies_processed = 0
         salaries_sum = 0
@@ -101,10 +100,8 @@ def get_salary_sj(vacancies_sj):
     return language_salaries_sj
 
 
-def get_sj_statistics():
+def get_sj_statistics(languages):
     language_vacancies_sj = {}
-    languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
-                 "C"]
     for language in languages:
         salaries = []
         for page in range(5):
@@ -130,12 +127,24 @@ def get_sj_statistics():
     return language_vacancies_sj
 
 
-def create_table():
-    
+def create_table(vacancies_statistics):
+    vacancies_table = [
+        ["Язык программирования", "Вакансий найдено", "Вакансий обработано", "Средняя зарплата"]
+    ]
+    for language, language_statistics in vacancies_statistics.items():
+        vacancies_found = language_statistics["vacancies_found"]
+        vacancies_processed = language_statistics["vacancies_processed"]
+        average_salary = language_statistics['average_salary']
+        vacancies_table.append([language, vacancies_found, vacancies_processed, average_salary])
+    table = AsciiTable(vacancies_table)
+    return table.table
 
 
 def main():
-    pprint.pp(get_sj_statistics())
+    languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
+                 "C"]
+    sj_statistics = get_sj_statistics(languages)
+    print(create_table(vacancies_statistics))
 
 
 if __name__ == '__main__':
