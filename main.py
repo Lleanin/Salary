@@ -1,6 +1,7 @@
 import requests
-import pprint
+import os
 from terminaltables import AsciiTable
+from dotenv import load_dotenv
 
 
 def stats_of_vacancies_hh(page, language, vacancies_for_page):
@@ -69,9 +70,9 @@ def get_salary_hh(vacancies_hh):
     return language_salaries_hh
 
 
-def stats_of_vacancies_sj(page, language):
+def stats_of_vacancies_sj(page, language, sj_key):
     headers = {
-        'X-Api-App-Id': "v3.r.137888823.3493536d8f3aec3215deaaf17ed4ec077f87bbc8.85e33e64bb8f1feb2b7563192bae7a64dd0822de",
+        'X-Api-App-Id': sj_key,
         }
     payload = {
         'keyword': 'Программист {}'.format(language),
@@ -100,12 +101,12 @@ def get_salary_sj(vacancies_sj):
     return language_salaries_sj
 
 
-def get_sj_statistics(languages):
+def get_sj_statistics(languages, sj_key):
     language_vacancies_sj = {}
     for language in languages:
         salaries = []
         for page in range(5):
-            vacancies_sj = stats_of_vacancies_sj(page, language)
+            vacancies_sj = stats_of_vacancies_sj(page, language, sj_key)
             if not vacancies_sj['objects']:
                 break
             for vacancy in vacancies_sj['objects']:
@@ -128,9 +129,11 @@ def get_sj_statistics(languages):
 
 
 def create_table(vacancy_statistic):
-
     vacancies_table = [
-        ["Язык программирования", "Вакансий найдено", "Вакансий обработано", "Средняя зарплата"]
+        ["Язык программирования", 
+         "Вакансий найдено", 
+         "Вакансий обработано", 
+         "Средняя зарплата"]
     ]
     for language, language_statistics in vacancy_statistic.items():
         vacancies_found = language_statistics["vacancies_found"]
@@ -142,9 +145,12 @@ def create_table(vacancy_statistic):
 
 
 def main():
+    load_dotenv()
+    sj_key = os.getenv("SJ_SECRET_KEY")
+    
     languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
                  "C"]
-    vacancies_statistics = get_sj_statistics(languages), get_hh_statistics(languages)
+    vacancies_statistics = get_sj_statistics(languages,sj_key),get_hh_statistics(languages)
     for vacancy_statistic in vacancies_statistics:
         print(create_table(vacancy_statistic))
 
