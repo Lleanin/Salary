@@ -30,9 +30,8 @@ def main():
 
     languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
                  "C"]
-    vacancies_statistics = get_sj_statistics(languages, sj_key), get_hh_statistics(languages)
-    for vacancy_statistic in vacancies_statistics:
-        print(create_table(vacancy_statistic))
+    print(create_table(get_sj_statistics(languages, sj_key)))
+    print(create_table(get_hh_statistics(languages)))
 
 
 if __name__ == '__main__':
