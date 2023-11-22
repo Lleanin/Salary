@@ -29,7 +29,7 @@ def main():
     sj_key = os.getenv("SJ_SECRET_KEY")
 
     languages = ["Python", "Java", "Javascript", "Ruby", "PHP", "C++", "C#",
-                 "C"]
+                 "Swift"]
     print(create_table(get_sj_statistics(languages, sj_key)))
     print(create_table(get_hh_statistics(languages)))
 
